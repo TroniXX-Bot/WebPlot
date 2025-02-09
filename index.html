@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triangle Area & Land Calculator</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #28a745;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        input {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(255, 255, 255, 0.8);
+            color: #333;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease, background-color 0.3s ease, transform 0.2s;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        input:focus {
+            border-color: #28a745;
+            outline: none;
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .triangle {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .triangle:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .triangle h4 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+
+        .remove-btn {
+            background-color: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s;
+        }
+
+        .remove-btn:hover {
+            background-color: #ff4757;
+            transform: scale(1.1);
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .output p {
+            margin: 10px 0;
+            font-size: 1.1em;
+        }
+
+        .output strong {
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Triangle Area & Land Measurement</h2>
+    <button onclick="addTriangle()">➕ Add Triangle</button>
+
+    <div id="triangles"></div>
+
+    <button onclick="calculateTotalArea()">Calculate Total</button>
+
+    <div class="output" id="output"></div>
+</div>
+
+<script>
+    let triangleCounter = 1;
+
+    function addTriangle() {
+        const triangleDiv = document.createElement("div");
+        triangleDiv.classList.add("triangle");
+        triangleDiv.id = `triangle-${triangleCounter}`;
+        triangleDiv.innerHTML = `
+            <h4>Triangle ${triangleCounter}</h4>
+            <input type="number" placeholder="Side A" id="sideA-${triangleCounter}">
+            <input type="number" placeholder="Side B" id="sideB-${triangleCounter}">
+            <input type="number" placeholder="Side C" id="sideC-${triangleCounter}">
+            <button class="remove-btn" onclick="removeTriangle(${triangleCounter})">❌ Remove</button>
+        `;
+
+        document.getElementById("triangles").appendChild(triangleDiv);
+        triangleCounter++;
+    }
+
+    function removeTriangle(id) {
+        const triangleToRemove = document.getElementById(`triangle-${id}`);
+        triangleToRemove.style.opacity = 0;
+        triangleToRemove.style.transform = "translateY(-20px)";
+        triangleToRemove.addEventListener('transitionend', () => {
+            triangleToRemove.remove();
+            recalculateTriangleNumbers();
+            calculateTotalArea();
+        });
+    }
+
+    function recalculateTriangleNumbers() {
+        const remainingTriangles = document.querySelectorAll('.triangle');
+        let counter = 1;
+        remainingTriangles.forEach(triangle => {
+            const h4 = triangle.querySelector('h4');
+            h4.textContent = `Triangle ${counter}`;
+            triangle.id = `triangle-${counter}`;
+
+            const inputs = triangle.querySelectorAll('input');
+            inputs.forEach(input => {
+                const parts = input.id.split('-');
+                input.id = `${parts[0]}-${counter}`;
+            });
+
+            const removeButton = triangle.querySelector('.remove-btn');
+            removeButton.onclick = () => removeTriangle(counter);
+
+            counter++;
+        });
+
+        triangleCounter = counter;
+    }
+
+    function calculateTotalArea() {
+        let totalArea = 0;
+        let validTriangles = 0;
+
+        for (let i = 1; i < triangleCounter; i++) {
+            const sideA = parseFloat(document.getElementById(`sideA-${i}`)?.value);
+            const sideB = parseFloat(document.getElementById(`sideB-${i}`)?.value);
+            const sideC = parseFloat(document.getElementById(`sideC-${i}`)?.value);
+
+            if (isNaN(sideA) || isNaN(sideB) || isNaN(sideC) || sideA <= 0 || sideB <= 0 || sideC <= 0) {
+                continue;
+            }
+
+            const s = (sideA + sideB + sideC) / 2;
+            const area = Math.sqrt(s * (s - sideA) * (s - sideB) * (s - sideC));
+
+            if (!isNaN(area)) {
+                totalArea += area;
+                validTriangles++;
+            }
+        }
+
+        if (validTriangles === 0) {
+            document.getElementById("output").innerHTML = "❌ No valid triangles entered!";
+            return;
+        }
+
+   
